@@ -7,23 +7,23 @@ import (
 )
 
 type EventController struct {
-	reserveTicketUseCase usecases.ReserveTicket
+	createReservationUseCase usecases.CreateReservationUseCase
 }
 
-func NewEventController(reserveTicketUseCase usecases.ReserveTicket) *EventController {
+func NewEventController(createReservationUseCase usecases.CreateReservationUseCase) *EventController {
 	return &EventController{
-		reserveTicketUseCase: reserveTicketUseCase,
+		createReservationUseCase: createReservationUseCase,
 	}
 }
 
 func (c *EventController) ReserveTicket(ctx *gin.Context) {
-	input := &dto.ReserveTicketInput{}
+	input := &dto.CreateReservationInput{}
 	if err := ctx.ShouldBindJSON(input); err != nil {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	output, err := c.reserveTicketUseCase.Execute(ctx.Request.Context(), *input)
+	output, err := c.createReservationUseCase.Execute(ctx.Request.Context(), input)
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return

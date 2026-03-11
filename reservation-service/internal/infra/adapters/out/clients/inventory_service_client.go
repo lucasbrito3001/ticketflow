@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"github.com/lucasbrito3001/go-kit/observability/httpctx"
-	"github.com/lucasbrito3001/ticketflow-reservation-service/internal/domain/ticket"
+	"github.com/lucasbrito3001/ticketflow-reservation-service/internal/domain/reservation"
 )
 
 type (
@@ -17,14 +17,14 @@ type (
 		Tickets ConsumeTicketRequestTickets `json:"tickets"`
 	}
 
-	ConsumeTicketRequestTickets map[ticket.TicketType]int
+	ConsumeTicketRequestTickets map[reservation.ReservationTicketType]int
 
 	ConsumeTicketResponse struct {
 		Message string `json:"message"`
 	}
 
 	InventoryServiceClient interface {
-		ConsumeTicket(ctx context.Context, eventID int64, tickets map[ticket.TicketType]int) error
+		ConsumeTicket(ctx context.Context, eventID int64, tickets map[reservation.ReservationTicketType]int) error
 	}
 
 	inventoryServiceClient struct {
@@ -41,7 +41,7 @@ func NewInventoryServiceClient(baseURL string) InventoryServiceClient {
 	}
 }
 
-func (c *inventoryServiceClient) ConsumeTicket(ctx context.Context, eventID int64, tickets map[ticket.TicketType]int) error {
+func (c *inventoryServiceClient) ConsumeTicket(ctx context.Context, eventID int64, tickets map[reservation.ReservationTicketType]int) error {
 	url := fmt.Sprintf("%s/events/%d/consume", c.baseURL, eventID)
 
 	requestBody := ConsumeTicketRequest{

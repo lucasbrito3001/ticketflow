@@ -1,37 +1,22 @@
 package statements
 
-import "strings"
-
-func InsertEvent() string {
+func InsertReservation() string {
 	return `
-		INSERT INTO events (
-			name,
-			starts_at,
-			ends_at,
-			venue,
-			street,
-			number,
-			city,
-			state,
-			zip_code,
-			open_sales_at,
-			close_sales_at
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-	`
-}
-
-func InsertTicketCatalogItem() string {
-	return `
-		INSERT INTO ticket_catalog_items (
+		INSERT INTO reservations (
 			event_id,
-			type,
-			price,
-			total_quantity,
-			sold_quantity
-		) VALUES (?, ?, ?, ?, ?)
+			status,
+			created_at,
+			updated_at
+		) VALUES (?, ?, ?, ?)
 	`
 }
 
-func InsertTicketBatch(values []string) string {
-	return `INSERT INTO tickets (event_id, type, price) VALUES ` + strings.Join(values, ",")
+func InsertReservationTickets() string {
+	return `
+		INSERT INTO reservation_tickets (
+			reservation_id,
+			ticket_type,
+			quantity
+		) VALUES (?, ?, ?)
+	`
 }
