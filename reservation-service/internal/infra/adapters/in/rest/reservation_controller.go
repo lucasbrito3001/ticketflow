@@ -1,31 +1,35 @@
 package rest
 
 import (
+	"log/slog"
+
 	"github.com/gin-gonic/gin"
 	"github.com/lucasbrito3001/ticketflow-reservation-service/internal/app/usecases"
 	"github.com/lucasbrito3001/ticketflow-reservation-service/internal/app/usecases/dto"
 )
 
-type EventController struct {
+type ReservationController struct {
 	createReservationUseCase usecases.CreateReservationUseCase
 }
 
-func NewEventController(createReservationUseCase usecases.CreateReservationUseCase) *EventController {
-	return &EventController{
+func NewReservationController(createReservationUseCase usecases.CreateReservationUseCase) *ReservationController {
+	return &ReservationController{
 		createReservationUseCase: createReservationUseCase,
 	}
 }
 
-func (c *EventController) ReserveTicket(ctx *gin.Context) {
+func (c *ReservationController) ReserveTickets(ctx *gin.Context) {
 	input := &dto.CreateReservationInput{}
 	if err := ctx.ShouldBindJSON(input); err != nil {
-		ctx.JSON(400, gin.H{"error": err.Error()})
+		slog.ErrorContext(ctx.Request.Context(), "error binding JSON", "error", err)
+		ctx.JSON(400, ErrorResponse{Error: "invalid request body", Details: err.Error()})
 		return
 	}
 
 	output, err := c.createReservationUseCase.Execute(ctx.Request.Context(), input)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		mapperResult := MapError(err)
+		ctx.JSON(mapperResult.StatusCode, mapperResult.Error)
 		return
 	}
 

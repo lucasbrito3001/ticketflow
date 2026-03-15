@@ -20,7 +20,7 @@ func TestNewReservation(t *testing.T) {
 		// Then
 		assert.NoError(t, err)
 		assert.NotNil(t, reservation)
-		assert.Equal(t, eventId, reservation.EventID())
+		assert.Equal(t, eventId, reservation.EventId())
 		assert.Equal(t, tickets, reservation.Tickets())
 	})
 
@@ -35,7 +35,7 @@ func TestNewReservation(t *testing.T) {
 		reservation, err := NewReservation(eventId, tickets, ReservationStatusCreated)
 
 		// Then
-		assert.ErrorAs(t, err, ErrInvalidEventID)
+		assert.ErrorIs(t, err, ErrInvalidEventID)
 		assert.Nil(t, reservation)
 	})
 
@@ -48,7 +48,7 @@ func TestNewReservation(t *testing.T) {
 		reservation, err := NewReservation(eventId, tickets, ReservationStatusCreated)
 
 		// Then
-		assert.ErrorAs(t, err, ErrEmptyTickets)
+		assert.ErrorIs(t, err, ErrEmptyTickets)
 		assert.Nil(t, reservation)
 	})
 
@@ -63,7 +63,7 @@ func TestNewReservation(t *testing.T) {
 		reservation, err := NewReservation(eventId, tickets, ReservationStatusCreated)
 
 		// Then
-		assert.ErrorAs(t, err, ErrInvalidTicketQuantity)
+		assert.ErrorIs(t, err, ErrInvalidTicketQuantity)
 		assert.Nil(t, reservation)
 	})
 }

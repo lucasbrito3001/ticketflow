@@ -3,5 +3,5 @@ package persistence
 import "errors"
 
 var (
-	ErrEventNotFound = errors.New("event not found")
+	ErrReservationNotFound = errors.New("reservation not found")
 )

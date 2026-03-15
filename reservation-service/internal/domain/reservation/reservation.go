@@ -46,7 +46,7 @@ func (r *Reservation) Id() int64 {
 	return r.id
 }
 
-func (r *Reservation) EventID() int64 {
+func (r *Reservation) EventId() int64 {
 	return r.eventID
 }
 
@@ -66,6 +66,13 @@ func (r *Reservation) SetAsCancelled() error {
 	r.status = ReservationStatusCancelled
 
 	return nil
+}
+
+func (r *Reservation) SetId(id int64) {
+	if r.id != 0 {
+		return
+	}
+	r.id = id
 }
 
 func (r *Reservation) SetAsAwaitingPayment() error {

@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/lucasbrito3001/ticketflow-reservation-service/internal/app/usecases/dto"
@@ -29,13 +30,19 @@ func TestCreateReservation_Execute(t *testing.T) {
 		input := validCreateReservationInput()
 		useCase := NewCreateReservationUseCase(mockReservationRepo, mockInventoryClient)
 
+		mockReservationRepo.On(
+			"Create",
+			mock.Anything,
+			mock.AnythingOfType("*reservation.Reservation"),
+		).Return(int64(1), nil).Once()
 		mockInventoryClient.On(
 			"HoldTickets",
 			mock.Anything,
-			mock.AnythingOfType("string"),
+			mock.AnythingOfType("int64"),
+			mock.AnythingOfType("map[reservation.ReservationTicketType]int"),
 		).Return(nil).Once()
 		mockReservationRepo.On(
-			"Create",
+			"Update",
 			mock.Anything,
 			mock.AnythingOfType("*reservation.Reservation"),
 		).Return(nil).Once()
@@ -71,7 +78,7 @@ func TestCreateReservation_Execute(t *testing.T) {
 			"Create",
 			mock.Anything,
 			mock.AnythingOfType("*reservation.Reservation"),
-		).Return(assert.AnError).Once()
+		).Return(int64(0), assert.AnError).Once()
 
 		// When
 		output, err := useCase.Execute(context.Background(), input)
@@ -91,12 +98,18 @@ func TestCreateReservation_Execute(t *testing.T) {
 			"Create",
 			mock.Anything,
 			mock.AnythingOfType("*reservation.Reservation"),
-		).Return(nil).Once()
+		).Return(int64(1), nil).Once()
 		mockInventoryClient.On(
 			"HoldTickets",
 			mock.Anything,
-			mock.AnythingOfType("string"),
+			mock.AnythingOfType("int64"),
+			mock.AnythingOfType("map[reservation.ReservationTicketType]int"),
 		).Return(assert.AnError).Once()
+		mockReservationRepo.On(
+			"Update",
+			mock.Anything,
+			mock.AnythingOfType("*reservation.Reservation"),
+		).Return(nil).Once()
 
 		// When
 		output, err := useCase.Execute(context.Background(), input)
@@ -116,24 +129,25 @@ func TestCreateReservation_Execute(t *testing.T) {
 			"Create",
 			mock.Anything,
 			mock.AnythingOfType("*reservation.Reservation"),
-		).Return(nil).Once()
+		).Return(int64(1), nil).Once()
 		mockInventoryClient.On(
 			"HoldTickets",
 			mock.Anything,
-			mock.AnythingOfType("string"),
-		).Return(nil).Once()
+			mock.AnythingOfType("int64"),
+			mock.AnythingOfType("map[reservation.ReservationTicketType]int"),
+		).Return(errors.New("error hold")).Once()
 		mockReservationRepo.On(
 			"Update",
 			mock.Anything,
 			mock.AnythingOfType("*reservation.Reservation"),
-		).Return(assert.AnError).Once()
+		).Return(errors.New("error update")).Once()
 
 		// When
 		output, err := useCase.Execute(context.Background(), input)
 
 		// Then
 		assert.Error(t, err)
-		assert.Equal(t, assert.AnError, err)
+		assert.Equal(t, "error update", err.Error())
 		assert.Nil(t, output)
 	})
 }

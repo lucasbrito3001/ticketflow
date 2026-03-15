@@ -3,11 +3,12 @@ package statements
 func InsertReservation() string {
 	return `
 		INSERT INTO reservations (
+			id,
 			event_id,
 			status,
 			created_at,
 			updated_at
-		) VALUES (?, ?, ?, ?)
+		) VALUES (?, ?, ?, ?, ?)
 	`
 }
 

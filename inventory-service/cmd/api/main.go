@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"log"
 	"log/slog"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -32,7 +33,10 @@ func main() {
 	})
 
 	// Database
-	dsn := "app:app@tcp(localhost:3306)/ticketflow_inventory"
+	dsn := os.Getenv("DB_DSN")
+	if dsn == "" {
+		dsn = "app:app@tcp(localhost:3306)/ticketflow_inventory?parseTime=true"
+	}
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		slog.Error("Failed to open database connection", "error", err, "dsn", dsn)
@@ -79,7 +83,11 @@ func main() {
 	slog.Debug("Route registered", "method", "POST", "path", "/events/:event_id/consume")
 
 	// Server
-	if err := router.Run(":8081"); err != nil {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8081"
+	}
+	if err := router.Run(":" + port); err != nil {
 		slog.Error("Server failed to start", "error", err)
 		log.Fatal(err)
 	}

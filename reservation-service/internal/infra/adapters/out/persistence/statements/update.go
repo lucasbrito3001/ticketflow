@@ -1,42 +1,13 @@
 package statements
 
-func UpdateEvent() string {
+func UpdateReservation() string {
 	return `
-		UPDATE events
+		UPDATE reservations
 		SET
-			name = ?,
-			starts_at = ?,
-			ends_at = ?,
-			venue = ?,
-			street = ?,
-			number = ?,
-			city = ?,
-			state = ?,
-			zip_code = ?,
-			open_sales_at = ?,
-			close_sales_at = ?
+			id = ?,
+			event_id = ?,
+			status = ?,
+			updated_at = ?
 		WHERE id = ?
-	`
-}
-
-func UpdateTicketCatalogItem() string {
-	return `
-		UPDATE ticket_catalog_items
-		SET
-			type = ?,
-			price = ?,
-			total_quantity = ?,
-			sold_quantity = ?
-		WHERE event_id = ? AND type = ?
-	`
-}
-
-func UpdateEventTicketCatalogItemSoldQuantity() string {
-	return `
-		UPDATE ticket_catalog_items
-		SET sold_quantity = sold_quantity + ?
-		WHERE 
-			event_id = ? AND type = ?
-			AND (sold_quantity + ?) <= total_quantity
 	`
 }

@@ -23,7 +23,7 @@ case $ENV in
         DB_PORT="3306"
         DB_USER="app"
         DB_PASSWORD="app"
-        DB_NAME="ticketflow_inventory"
+        DB_NAME="ticketflow_reservation"
         echo -e "${YELLOW}Running migrations for LOCAL environment${NC}"
         ;;
     dev)

@@ -38,16 +38,13 @@ INSERT INTO events (name, starts_at, ends_at, venue, address_id, open_sales_at, 
 
 INSERT INTO ticket_catalog_items (event_id, type, price, total_quantity, sold_quantity) VALUES
 -- Coldplay - Music of the Spheres
-(1, 'INTEIRA', 50000, 2000, 150),      -- R$ 500.00
-(1, 'MEIA', 25000, 500, 45),           -- R$ 250.00
+(1, 'GENERAL', 50000, 2000, 150),      -- R$ 500.00
 (1, 'VIP', 100000, 200, 20),           -- R$ 1000.00
 
 -- Festival Back Beats
-(2, 'INTEIRA', 35000, 3000, 280),      -- R$ 350.00
-(2, 'MEIA', 17500, 1000, 95),          -- R$ 175.00
-(2, 'CAMAROTE', 75000, 300, 50),       -- R$ 750.00
+(2, 'GENERAL', 35000, 3000, 280),      -- R$ 350.00
+(2, 'VIP', 75000, 300, 50),       -- R$ 750.00
 
 -- Praia Venue Summer Concert
-(3, 'INTEIRA', 40000, 1500, 200),      -- R$ 400.00
-(3, 'MEIA', 20000, 400, 60),           -- R$ 200.00
+(3, 'GENERAL', 40000, 1500, 200),      -- R$ 400.00
 (3, 'VIP', 90000, 150, 25);            -- R$ 900.00

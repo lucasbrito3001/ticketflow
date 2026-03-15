@@ -28,8 +28,9 @@ func TestNewReservationTicketType(t *testing.T) {
 		ticketType, err := NewReservationTicketType(name)
 
 		// Then
-		assert.ErrorAs(t, err, ErrInvalidTicketType)
-		assert.Nil(t, ticketType)
+		assert.ErrorIs(t, err, ErrInvalidTicketType)
+		assert.Equal(t, ReservationTicketType(""), ticketType)
+
 	})
 
 	t.Run("should fail with invalid name", func(t *testing.T) {
@@ -40,7 +41,7 @@ func TestNewReservationTicketType(t *testing.T) {
 		ticketType, err := NewReservationTicketType(name)
 
 		// Then
-		assert.ErrorAs(t, err, ErrInvalidTicketType)
-		assert.Nil(t, ticketType)
+		assert.ErrorIs(t, err, ErrInvalidTicketType)
+		assert.Equal(t, ReservationTicketType(""), ticketType)
 	})
 }
