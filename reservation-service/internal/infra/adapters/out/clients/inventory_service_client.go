@@ -13,14 +13,14 @@ import (
 )
 
 type (
-	ConsumeTicketRequest struct {
+	consumeTicketRequest struct {
 		EventID int64                       `json:"event_id"`
-		Tickets ConsumeTicketRequestTickets `json:"tickets"`
+		Tickets consumeTicketRequestTickets `json:"tickets"`
 	}
 
-	ConsumeTicketRequestTickets map[reservation.ReservationTicketType]int
+	consumeTicketRequestTickets map[reservation.ReservationTicketType]int
 
-	ConsumeTicketResponse struct {
+	consumeTicketResponse struct {
 		Message string `json:"message"`
 	}
 
@@ -41,7 +41,7 @@ func NewInventoryServiceClient(baseURL string) ports.InventoryServiceClient {
 func (c *inventoryServiceClient) HoldTickets(ctx context.Context, eventID int64, tickets map[reservation.ReservationTicketType]int) error {
 	url := fmt.Sprintf("%s/events/%d/consume", c.baseURL, eventID)
 
-	requestBody := ConsumeTicketRequest{
+	requestBody := consumeTicketRequest{
 		EventID: eventID,
 		Tickets: tickets,
 	}
@@ -54,6 +54,14 @@ func (c *inventoryServiceClient) HoldTickets(ctx context.Context, eventID int64,
 	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(body))
 	if err != nil {
 		return err
+	}
+
+	if req.Response.StatusCode >= http.StatusBadRequest {
+		domainErr := convertClientErrorToDomainError(req.Response)
+		if domainErr != nil {
+			return domainErr
+		}
+		return reservation.ErrUnexpected
 	}
 
 	req.Header.Set("Content-Type", "application/json")

@@ -5,7 +5,7 @@ go 1.24.5
 require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/google/uuid v1.6.0
-	github.com/lucasbrito3001/go-kit v0.0.0-20260111184837-34dd35f430fb
+	github.com/lucasbrito3001/go-kit v1.0.0
 	github.com/stretchr/testify v1.11.1
 )
 

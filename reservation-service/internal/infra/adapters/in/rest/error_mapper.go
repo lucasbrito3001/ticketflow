@@ -20,6 +20,8 @@ var errorStatusMap = map[error]int{
 	reservation.ErrInvalidReservationStatus:   http.StatusBadRequest,
 	reservation.ErrInvalidTicketQuantity:      http.StatusBadRequest,
 	reservation.ErrInvalidTicketType:          http.StatusBadRequest,
+	reservation.ErrEventNotFound:              http.StatusNotFound,
+	reservation.ErrInsufficientTickets:        http.StatusConflict,
 }
 
 func MapError(err error) ErrorMapperResult {
