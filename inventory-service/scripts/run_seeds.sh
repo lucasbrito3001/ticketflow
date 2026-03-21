@@ -20,7 +20,7 @@ SEEDS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../db/seeds"
 # Load environment configuration
 case $ENV in
     local)
-        DB_HOST="localhost"
+        DB_HOST="127.0.0.1"
         DB_PORT="3306"
         DB_USER="app"
         DB_PASSWORD="app"
@@ -72,7 +72,7 @@ fi
 
 # Validate database connection
 echo "Validating database connection to $DB_HOST:$DB_PORT..."
-if ! mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -p"$DB_PASSWORD" -e "SELECT 1" &>/dev/null; then
+if ! docker exec -i ticketflow-mysql mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -p"$DB_PASSWORD" -e "SELECT 1" &>/dev/null; then
     echo -e "${RED}✗ Failed to connect to database${NC}"
     exit 1
 fi
@@ -86,7 +86,7 @@ for seed_file in "$SEEDS_DIR"/*.sql; do
     filename=$(basename "$seed_file")
     
     echo "Running $filename..."
-    mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" < "$seed_file" 2>&1
+    docker exec -i ticketflow-mysql mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" < "$seed_file" 2>&1
     
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ $filename completed${NC}"

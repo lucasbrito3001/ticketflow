@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -10,9 +11,8 @@ import (
 	"github.com/lucasbrito3001/go-kit/observability/logger"
 	"github.com/lucasbrito3001/ticketflow-reservation-service/internal/app/usecases"
 	"github.com/lucasbrito3001/ticketflow-reservation-service/internal/infra/adapters/in/rest"
-	"github.com/lucasbrito3001/ticketflow-reservation-service/internal/infra/adapters/out"
+	"github.com/lucasbrito3001/ticketflow-reservation-service/internal/infra/adapters/out/clients"
 	"github.com/lucasbrito3001/ticketflow-reservation-service/internal/infra/adapters/out/persistence"
-	"github.com/lucasbrito3001/ticketflow-reservation-service/internal/infra/clients"
 )
 
 func main() {
@@ -26,7 +26,10 @@ func main() {
 		})
 	})
 
-	dsn := "app:app@tcp(localhost:3306)/app"
+	dsn := os.Getenv("DB_DSN")
+	if dsn == "" {
+		dsn = "app:app@tcp(localhost:3306)/ticketflow_reservation"
+	}
 
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
@@ -38,20 +41,26 @@ func main() {
 	defer db.Close()
 
 	// adapters
-	unitOfWork := out.NewUnitOfWork(db)
-	eventRepository := persistence.NewEventRepository(db)
-	ticketRepository := persistence.NewTicketRepository(db)
+	reservationRepository := persistence.NewReservationRepository(db)
 
 	// clients
-	inventoryClient := clients.NewInventoryServiceClient("http://localhost:8081")
+	inventoryURL := os.Getenv("INVENTORY_URL")
+	if inventoryURL == "" {
+		inventoryURL = "http://localhost:8081"
+	}
+	inventoryClient := clients.NewInventoryServiceClient(inventoryURL)
 
 	// use cases
-	reserveTicketUseCase := usecases.NewReserveTicket(unitOfWork, eventRepository, ticketRepository, inventoryClient)
+	createReservationUseCase := usecases.NewCreateReservationUseCase(reservationRepository, inventoryClient)
 
 	// controllers
-	reserveTicketController := rest.NewEventController(reserveTicketUseCase)
+	createReservationController := rest.NewReservationController(createReservationUseCase)
 
-	router.POST("/events/:event_id/reserve", reserveTicketController.ReserveTicket)
+	router.POST("/events/reserve", createReservationController.ReserveTickets)
 
-	router.Run(":8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8081" // Match container EXPOSE / Healthcheck
+	}
+	router.Run(":" + port)
 }

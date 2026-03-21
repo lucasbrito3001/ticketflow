@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/lucasbrito3001/ticketflow-inventory-service/internal/domain/address"
@@ -9,40 +10,66 @@ import (
 	"github.com/lucasbrito3001/ticketflow-inventory-service/internal/domain/ticket"
 )
 
-type ErrorResponse struct {
+type ErrorMapperResultCode struct {
 	StatusCode int
-	Message    string
+	ErrorCode  string
 }
 
-var errorStatusMap = map[error]int{
+type ErrorMapperResult struct {
+	StatusCode int
+	Error      ErrorResponse
+}
+
+var errorStatusMap = map[error]ErrorMapperResultCode{
 	// Event domain errors
-	event.ErrEventNameEmpty:        http.StatusBadRequest,
-	event.ErrEventVenueNameEmpty:   http.StatusBadRequest,
-	event.ErrEventEndsBeforeStarts: http.StatusBadRequest,
-	event.ErrTicketTypeNotFound:    http.StatusBadRequest,
-	event.ErrTicketCatalogNotSet:   http.StatusBadRequest,
-	event.ErrInsufficientTickets:   http.StatusConflict,
-	event.ErrEventNotFound:         http.StatusNotFound,
+	event.ErrEventNameEmpty:        {StatusCode: http.StatusBadRequest, ErrorCode: "EVENT_NAME_EMPTY"},
+	event.ErrEventVenueNameEmpty:   {StatusCode: http.StatusBadRequest, ErrorCode: "EVENT_VENUE_NAME_EMPTY"},
+	event.ErrEventEndsBeforeStarts: {StatusCode: http.StatusBadRequest, ErrorCode: "EVENT_ENDS_BEFORE_STARTS"},
+	event.ErrTicketTypeNotFound:    {StatusCode: http.StatusBadRequest, ErrorCode: "TICKET_TYPE_NOT_FOUND"},
+	event.ErrTicketCatalogNotSet:   {StatusCode: http.StatusBadRequest, ErrorCode: "TICKET_CATALOG_NOT_SET"},
+	event.ErrInsufficientTickets:   {StatusCode: http.StatusConflict, ErrorCode: "INSUFFICIENT_TICKETS"},
+	event.ErrEventNotFound:         {StatusCode: http.StatusNotFound, ErrorCode: "EVENT_NOT_FOUND"},
 
 	// Address domain errors
-	address.ErrStreetEmpty:  http.StatusBadRequest,
-	address.ErrNumberEmpty:  http.StatusBadRequest,
-	address.ErrCityEmpty:    http.StatusBadRequest,
-	address.ErrStateEmpty:   http.StatusBadRequest,
-	address.ErrZipCodeEmpty: http.StatusBadRequest,
+	address.ErrStreetEmpty:  {StatusCode: http.StatusBadRequest, ErrorCode: "STREET_EMPTY"},
+	address.ErrNumberEmpty:  {StatusCode: http.StatusBadRequest, ErrorCode: "NUMBER_EMPTY"},
+	address.ErrCityEmpty:    {StatusCode: http.StatusBadRequest, ErrorCode: "CITY_EMPTY"},
+	address.ErrStateEmpty:   {StatusCode: http.StatusBadRequest, ErrorCode: "STATE_EMPTY"},
+	address.ErrZipCodeEmpty: {StatusCode: http.StatusBadRequest, ErrorCode: "ZIP_CODE_EMPTY"},
 
 	// Money domain errors
-	money.ErrInvalidMoneyAmount: http.StatusBadRequest,
+	money.ErrInvalidMoneyAmount: {StatusCode: http.StatusBadRequest, ErrorCode: "INVALID_MONEY_AMOUNT"},
 
 	// Ticket domain errors
-	ticket.ErrInvalidTicketType:     http.StatusBadRequest,
-	ticket.ErrInvalidTicketQuantity: http.StatusBadRequest,
+	ticket.ErrInvalidTicketType:     {StatusCode: http.StatusBadRequest, ErrorCode: "INVALID_TICKET_TYPE"},
+	ticket.ErrInvalidTicketQuantity: {StatusCode: http.StatusBadRequest, ErrorCode: "INVALID_TICKET_QUANTITY"},
 }
 
-func MapError(err error) ErrorResponse {
-	if statusCode, exists := errorStatusMap[err]; exists {
-		return ErrorResponse{statusCode, err.Error()}
+// func MapError(err error) ErrorMapperResult {
+// 	if result, exists := errorStatusMap[err]; exists {
+// 		return ErrorMapperResult{StatusCode: result.StatusCode, Error: ErrorResponse{Error: err.Error(), ErrorCode: result.ErrorCode}}
+// 	}
+
+// 	return ErrorMapperResult{StatusCode: http.StatusInternalServerError, Error: ErrorResponse{Error: "An unexpected error occurred"}}
+// }
+
+func MapError(err error) ErrorMapperResult {
+	for domainErr, result := range errorStatusMap {
+		if errors.Is(err, domainErr) {
+			return ErrorMapperResult{
+				StatusCode: result.StatusCode,
+				Error: ErrorResponse{
+					Error:     err.Error(),
+					ErrorCode: result.ErrorCode,
+				},
+			}
+		}
 	}
 
-	return ErrorResponse{http.StatusInternalServerError, "An unexpected error occurred"}
+	return ErrorMapperResult{
+		StatusCode: http.StatusInternalServerError,
+		Error: ErrorResponse{
+			Error: "an unexpected error occurred",
+		},
+	}
 }

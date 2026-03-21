@@ -23,20 +23,20 @@ func (c *EventController) ConsumeTicket(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindUri(input); err != nil {
 		errResponse := MapError(err)
-		ctx.JSON(errResponse.StatusCode, gin.H{"error": errResponse.Message})
+		ctx.JSON(errResponse.StatusCode, errResponse.Error)
 		return
 	}
 
 	if err := ctx.ShouldBindJSON(input); err != nil {
 		errResponse := MapError(err)
-		ctx.JSON(errResponse.StatusCode, gin.H{"error": errResponse.Message})
+		ctx.JSON(errResponse.StatusCode, errResponse.Error)
 		return
 	}
 
 	output, err := c.consumeTicketUseCase.Execute(ctx.Request.Context(), *input)
 	if err != nil {
 		errResponse := MapError(err)
-		ctx.JSON(errResponse.StatusCode, gin.H{"error": errResponse.Message})
+		ctx.JSON(errResponse.StatusCode, errResponse.Error)
 		return
 	}
 
@@ -50,14 +50,14 @@ func (c *EventController) Create(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(input); err != nil {
 		errResponse := MapError(err)
-		ctx.JSON(errResponse.StatusCode, gin.H{"error": errResponse.Message})
+		ctx.JSON(errResponse.StatusCode, errResponse.Error)
 		return
 	}
 
 	output, err := c.createEventUseCase.Execute(ctx.Request.Context(), *input)
 	if err != nil {
 		errResponse := MapError(err)
-		ctx.JSON(errResponse.StatusCode, gin.H{"error": errResponse.Message})
+		ctx.JSON(errResponse.StatusCode, errResponse.Error)
 		return
 	}
 
