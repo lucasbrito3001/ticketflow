@@ -56,14 +56,6 @@ func (c *inventoryServiceClient) HoldTickets(ctx context.Context, eventID int64,
 		return err
 	}
 
-	if req.Response.StatusCode >= http.StatusBadRequest {
-		domainErr := convertClientErrorToDomainError(req.Response)
-		if domainErr != nil {
-			return domainErr
-		}
-		return reservation.ErrUnexpected
-	}
-
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.client.Do(req)
@@ -72,8 +64,8 @@ func (c *inventoryServiceClient) HoldTickets(ctx context.Context, eventID int64,
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("inventory service returned status code %d", resp.StatusCode)
+	if resp.StatusCode >= http.StatusBadRequest {
+		return convertClientErrorToDomainError(resp)
 	}
 
 	return nil

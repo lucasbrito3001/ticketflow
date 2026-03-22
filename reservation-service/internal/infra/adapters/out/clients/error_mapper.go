@@ -29,5 +29,5 @@ func convertClientErrorToDomainError(resp *http.Response) error {
 		return reservation.ErrInsufficientTickets
 	}
 
-	return nil
+	return reservation.ErrUnexpected
 }
